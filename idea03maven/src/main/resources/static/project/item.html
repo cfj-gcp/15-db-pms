@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script type="text/javascript" src="vue.js"></script>
+		<script type="text/javascript" src="axios.min.js"></script>
+		<script type="text/javascript" src="const.js"></script>
+	</head>
+	<body>
+		<a  href="item.html">商品管理</a>
+		<a  href="#">订单管理</a>
+		<div id="app">
+			分类名称：<select v-model="categoryId">
+				<option v-for="category in categoryList"  v-bind:value="category.categoryId">
+					{{category.categoryName}}
+				</option>
+			</select>
+			商品名称：<input  v-model="itemName"/>
+			商品价格：<input  v-model="itemPrice"/>
+			商品描述：<input  v-model="itemDesc"/>
+			商品图片：<input  v-model="itemImage"/>
+			<button  v-on:click="insert"  type="button">添加</button>
+			<table border="" cellspacing="" cellpadding="">
+			<tr>
+				<td>商品分类</td>
+				<td>商品编号</td>
+				<td>商品名称</td>
+				<td>价格</td>
+				<td>描述</td>
+				<td>图片</td>
+				<td>删除</td>
+				<td>修改</td>
+						</tr>
+						<tr v-for="item in itemList">
+							<td>{{item.itemId}}</td>
+							<td>{{item.categoryId}}</td>
+							<td>{{item.itemName}}</td>
+							<td>{{item.itemPrice}}</td>
+							<td>{{item.itemDesc}}</td>
+							<td>{{item.itemImage}}</td>
+							<td v-on:click="remove(item.itemId)">删除 </td>
+							<td><a v-bind:href="'update.html?itemId='+item.itemId">修改</a></td>
+						</tr>
+			</table>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var  config={
+			el:"#app",
+			data:{
+				categoryList:[],
+				categoryId:null,
+				itemList:[]
+			},
+			methods:{
+				remove:function(itemId){
+					var  result=window.confirm("你真的要删除么");
+					window.alert(result);
+					if(result){
+						var url=serverHost+"/item/delete?itemId="+itemId;
+						axios.get(url).then(function(res){
+							debugger;
+							window.alert(res.data);
+							// 重新查询
+							this.vue.selectItemList();
+						}).catch();
+					}
+				},
+				
+				selectItemList:function(){
+				var url=serverHost+"/item/selectAll";
+				axios.get(url).then(function(res){
+					debugger;
+				var result=	res.data;
+				console.log(result)//看item的属性名
+				this.vue.itemList=result;
+				}).catch();
+				},
+				insert:function(){
+					var serverUrl=serverHost+"/item/insert"+"?categoryId="+this.categoryId
+					+"&itemName="+this.itemName
+					+"&itemPrice="+this.itemPrice
+					+"&itemDesc="+this.itemDesc
+					+"&itemImage="+this.itemImage
+					axios.get(serverUrl).then(function(res){
+						debugger;
+						var  result=res.data;
+						window.alert(result);
+					}).catch();
+				},
+				selectCategory:function(){
+					debugger;
+					var serverUrl=serverHost+"/category/selectAll"
+					axios.get(serverUrl).then(function(res){
+						debugger;
+						var result=res.data;
+						this.vue.categoryList=result;
+					}).catch();
+					
+				}
+			},
+			mounted:function(){
+				debugger;
+				this.selectCategory();
+				this.selectItemList();
+			}
+			
+		}
+		var vue=new Vue(config);
+	</script>
+</html>

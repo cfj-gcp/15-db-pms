@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script type="text/javascript" src="vue.js"></script>
+		<script type="text/javascript" src="axios.min.js"></script>
+		<script type="text/javascript" src="const.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<input v-model="username"/><br>
+			<input v-model="password" type="password"/><br>
+			<button v-on:click="login" type="button">登录</button>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var config={
+			el:"#app",
+			data:{
+				username:"在这里输入用户名",
+				password:"88"
+			},
+			methods:{
+				login:function(){
+					debugger;
+					var serverUrl=serverHost+"/user/login"+"?username="+this.username+"&password="+this.password;
+					axios.get(serverUrl).then(function(res){
+						debugger;
+						// 从res中获取结果
+						var result=res.data;
+						window.alert(result);//在console中查看错误信息
+					}).catch();
+				}
+			}
+			
+		};
+		var vue=new Vue(config);
+	</script>
+</html>

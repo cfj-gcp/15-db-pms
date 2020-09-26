@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script type="text/javascript" src="vue.js"></script>
+		<script type="text/javascript" src="axios.min.js"></script>
+		<script type="text/javascript" src="const.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			商品分类：<select v-model="categoryId">
+		<option v-for="category in categoryList" v-bind:value="category.categoryId">
+						{{category.categoryName}}
+		</option>
+			</select><br>
+			名称：<input  v-model="itemName" /><br>
+			价格：<input  v-model="itemPrice" /><br>
+			描述：<input  v-model="itemDesc" /><br>
+			图片：<input  v-model="itemImage" /><br>
+			<button v-on:click="update">修改</button>
+			
+		</div>
+	</body>
+	<script type="text/javascript">
+		var config={
+			el:"#app",
+			data:{
+				categoryId:null,
+				categoryList:[],
+				itemId:null,
+				itemName:null,
+				itemPrice:null,
+				itemImage:null,
+				itemDesc:null
+			},
+			methods:{
+				update:function(){
+					debugger;
+					var url=serverHost+"/item/update?"
+					+"itemId="+this.itemId
+					+"&categoryId="+this.categoryId;
+					+"&itemName="+this.itemName
+					+"&itemPrice="+this.itemPrice
+					+"&itemDesc="+this.itemDesc
+					+"&itemImage="+this.itemImage;
+					axios.get(url).then(function(res){
+						debugger;
+						window.alert(res.data);
+						location.href="item.html";
+					}).catch();
+				},
+				selectItemByItemId:function(itemId){
+					var url=serverHost+"/item/findByItemId?itemId="+itemId;
+					axios.get(url).then(function(res){
+						debugger;
+						var  item=res.data;
+					this.vue.categoryId=item.categoryId;
+						this.vue.itemId=item.itemId;
+						this.vue.itemName=item.itemName;
+						this.vue.itemPrice=item.itemPrice;
+						this.vue.itemDesc=item.itemDesc;
+						this.vue.itemImage=item.itemImage;
+						
+						
+					}).catch();
+				},
+				selectCategory:function(){
+					debugger;
+					var serverUrl=serverHost+"/category/selectAll"
+					axios.get(serverUrl).then(function(res){
+						debugger;
+						var result=res.data;
+						this.vue.categoryList=result;
+					}).catch();
+					
+				}
+			},
+			mounted:function(){
+				// 在item.html单机超链接，update.html?itemId=1
+				var search=location.search;//?itemId=1
+				search=search.substr(1);//itemID=1
+				var  array=search.split("=");
+				var  itemId=array[1];
+				console.log(itemId);
+				this.selectCategory();
+				this.selectItemByItemId(itemId);
+			
+			}
+		};
+		var  vue=new  Vue(config);
+	</script>
+</html>

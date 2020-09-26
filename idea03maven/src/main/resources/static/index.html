@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<script type="text/javascript" src="vue.js"></script>
+		<script type="text/javascript" src="axios.min.js"></script>
+		<script type="text/javascript" src="const.js"></script>
+	</head>
+	<body>
+		<div id="app">
+			<a href="register.html">注册</a><br>
+			<a href="login.html">登录</a>
+			<table width="100%"  border="" cellspacing="" cellpadding="">
+				<tr>
+					<td v-on:click="findItemByCategoryId(category.categoryId)" v-for="category in categoryList">
+						{{category.categoryName}}
+					</td>
+					</tr>
+			</table>
+			<!-- 显示商品 -->
+			<table width="100" border="" cellspacing="" cellpadding="">
+				
+				<tr v-for="item in itemList">
+					<td>
+						<a v-bind:href="'detail.html?itemId='+item.itemId">
+						<img  v-bind:src="item.itemImage" ><br>
+						{{item.itemName}}<br>
+						{{item.itemPrice}}<br>
+						</a>
+					</td>
+					
+				</tr>
+			</table>
+		</div>
+	</body>
+	<script type="text/javascript">
+		var  config={
+			el:"#app",
+			data:{
+				categoryList:[],
+				itemList:[]
+			},
+			methods:{
+				findItemByCategoryId:function(categoryId){
+					debugger;
+					var  serverUrl=serverHost+"/item/findByCategoryId?categoryId="+categoryId;
+					axios.get(serverUrl).then(function(res){
+						debugger;
+						var  result=res.data;
+						this.vue.itemList=result;
+						
+					}).catch();
+				},
+				findCategory:function(){
+					debugger;
+					var serverUrl=serverHost+"/category/selectAll";
+					axios.get(serverUrl).then(function(res){
+						debugger;
+						var list=res.data;
+						this.vue.categoryList=list;
+					}).catch();
+				}
+			},
+			mounted:function(){
+				debugger;
+				this.findCategory();
+				this.findItemByCategoryId(1);
+			}
+		}
+		var vue=new Vue(config)
+	</script>
+</html>

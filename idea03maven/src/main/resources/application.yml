@@ -1,0 +1,19 @@
+server:
+  port: 1317
+
+spring:     
+    datasource: 
+#      有的mysql如5.0 下面必须改成com.mysql.jdbc.Driver
+        driver-class-name: com.mysql.cj.jdbc.Driver        
+        url: jdbc:mysql://localhost:3306/mall?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2b8
+        username: root        
+        password: root
+    
+mybatis:
+  mapperLocations: classpath:com.tedu.idea03maven.mapper/*.xml
+
+logging:
+  path: ./logs
+  level:
+    com.tedu.idea03maven.mapper: debug
+
