@@ -13,10 +13,11 @@ mybatis:
   mapperLocations: classpath:com.tedu.JT.mapper/*.xml
 
 logging:
-  path: ./logs
   level:
     com:
       tedu:
         JT:
     .mapper: debug
+  file:
+    path: d:/20201007/
 

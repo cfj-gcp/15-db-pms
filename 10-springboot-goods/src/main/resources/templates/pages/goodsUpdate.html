@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" >
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        ul li {list-style-type: none;}
+    </style>
+</head>
+<body>
+   <h1>
+       The Goods update  page
+   </h1>
+<form th:action="@{/goods/updateGoods}" method="post">
+    <input type="hidden" name="id" th:value="${goods.id}">
+    <url>
+        <li>name:
+        <li><input type="text" name="name" th:value="${goods.name}">
+        <li>remark:
+        <li><textarea rows="5" cols="50" name="remark" th:text="${goods.remark}"></textarea>
+        <li><input type="submit" value="updateGoods">
+    </url>
+</form>
+</body>
+</html>
