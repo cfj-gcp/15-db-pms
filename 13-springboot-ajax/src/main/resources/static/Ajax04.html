@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <h1>The Ajax 04 Page</h1>
+    <fieldset>
+        <legend>Ajax 表单请求</legend>
+        <form>
+            <input type="text" name="name" onblur="doCheck()"/>
+            <button type="button" onclick="doSave()">Save</button>
+        </form>
+        <span id="result"></span>
+    </fieldset>
+</div>
+<!--引入自定义的ajax库文件(也可以看成是一个小框架),通过这个js文件,让ajax操作步骤的封装更加严谨-->
+<script src="ajaxfk.js"></script>
+<script>
+
+    function doSave(){//发送异步请求,检查name是否存
+        //1.定义请求url
+        let url="http://localhost:1314/doSave";
+        //2.定义请求参数
+        let name=document.forms[0].name.value;
+        let params=`name=${name}`;
+        //3.发送异步请求并处理响应结果
+        $$.doAjaxPost(url,params,function(result){
+            document.getElementById("result").innerHTML=result;
+        })
+    }
+
+    function doCheck(){//发送异步请求,检查name是否存在
+        //1.定义请求url
+        let url="http://localhost:1314/doCheck";//通过模板字符串``和${}表示拼接url
+        //2.定义请求参数
+        let name=document.forms[0].name.value;//获取表单中name对应的value属性值
+        //3.发送异步请求并处理响应结果
+        $$.doAjaxGet(url,`name=${name}`,function(result){
+            document.getElementById("result").innerHTML=result;
+        })//底层还是借助XmlHttpRequest对象发送请求
+    }
+</script>
+</body>
+</html>

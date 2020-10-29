@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.db.Dao.MenuDao">
+<!--    左侧菜单查询-->
+    <select id="findMenusByIds"
+            resultMap="leftMenu">
+        select p.id,p.name,p.url,c.id cid,c.name cname,c.url curl
+        from sys_menus p join sys_menus c
+        on c.parentId=p.id
+        <where>
+            <foreach collection="menuIds"
+                     open="("
+                     close=")"
+                     separator="or"
+                     item="menuId">
+                c.id=#{menuId}
+            </foreach>
+            and p.parentId is null
+        </where>
+    </select>
+    <resultMap type="com.cy.db.pojo.leftMenu" id="leftMenu">
+        <!-- 一级菜单映射 -->
+        <id  property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+        <!-- 二级菜单映射 -->
+        <collection property="childs" ofType="com.cy.db.pojo.leftMenu">
+            <id  property="id" column="cid"/>
+            <result property="name" column="cname"/>
+            <result property="url" column="curl"/>
+        </collection>
+    </resultMap>
+    <!--    权限认证，根据菜单id查找授权标识-->
+    <select id="findpermissions" resultType="string">
+     select  permission
+      from  sys_menus
+      where  id  in
+      <foreach collection="menuIds"  open="("
+                                      close=")"
+                                       separator=","
+                                            item="item">
+          #{item}
+      </foreach>
+
+    </select>
+    <!--    更改菜单信息-->
+    <update id="updateObject" parameterType="com.cy.db.pojo.menu">
+     update sys_menus
+     set
+           name=#{name},
+           type=#{type},
+           sort=#{sort},
+           url=#{url},
+           parentId=#{parentId},
+           permission=#{permission},
+           modifiedUser=#{modifiedUser},
+           modifiedTime=now()
+     where id=#{id}
+    </update>
+    <!--  插入菜单信息-->
+    <insert id="insertObject"  parameterType="com.cy.db.pojo.menu">
+          insert into sys_menus
+          (name,url,type,sort,note,parentId,permission,
+createdTime,modifiedTime,createdUser,modifiedUser)
+          values
+          (#{name},#{url},#{type},#{sort},#{note},#{parentId},
+#{permission},now(),now(),#{createdUser},#{modifiedUser})
+  </insert>
+    <!--    查询所有菜单以及菜单对应的上级菜单，当没有上级菜单显示为null-->
+    <select id="findObject" resultType="map">
+    select  c.*,p.name  parentName
+    from sys_menus c left join sys_menus p
+    on c.parentId=p.id
+--     第二种查询方法
+--     SELECT  c.name  ,(SELECT p.name FROM sys_menus p WHERE c.parentId=p.id ) parentName
+-- FROM sys_menus c
+  </select>
+</mapper>

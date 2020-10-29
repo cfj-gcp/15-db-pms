@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <button onclick="doAxiosGet()">axios.get()</button>
+    <button onclick="doAxiosPost()">axios.post()</button><br>
+    <span id="res"></span>
+</div>
+<script src="axios.min.js"></script>
+<script>
+    function doAxiosPost(){
+        //1.url
+        let url="http://localhost:1314/doPostJSON";
+        //2.params
+        let params={"msg":"向天打飞机"}
+        //3.send ajax post request
+        //axios.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+        axios.post(url,params)
+            .then(function(result){//callback function
+                console.log(result);
+                document.querySelector("#res").innerHTML=JSON.stringify(result.data);//原生的js代码
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+
+    }
+    function doAxiosGet(){
+        //1.url
+        let url="http://localhost:1314/doJqueryAjax";
+        //2.params
+        let params={params: {"msg":"hello axios"}}
+        //3.send ajax get request
+        axios.get(url,params)
+            .then(function(result){//callback function
+                console.log(result);
+                document.querySelector("#res").innerHTML=JSON.stringify(result.data);//原生的js代码
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+
+    }
+</script>
+</body>
+</html>

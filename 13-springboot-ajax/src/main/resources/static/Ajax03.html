@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <h1>The Ajax 03 page</h1>
+    <fieldest>
+        <lenged> ajax 表单请求</lenged>
+        <form action="">
+            <input type="text" name="name" onblur="doCheck()">
+            <button type="button"  onclick="doSave()"> Save</button>
+        </form>
+        <span  id="result"></span>
+    </fieldest>
+</div>
+<script src="ajax.js"></script>
+<script>
+    function doSave(){//发送异步请求，检查name是否存在
+    //   1.定义请求url
+        let url="http://localhost:1314/doSave";
+        //2.定义请求参数
+        let name=document.forms[0].name.value;
+        let params=`name=${name}`;
+    //    3.发送异步请求并处理响应结果
+        doAjaxGet(url,params,function (result){
+            document.getElementById("result").innerText=result;
+        })
+
+    }
+    function doCheck(){
+        let url="http://localhost:1314/doCheck";
+        let name=document.forms[0].name.value;//获取表单中name对应的value属性值
+    //    3.发送异步请求并处理响应结果
+        doAjaxPost(url,`nane=${name}`,function (result){
+            document.getElementById("result").innerText=result;
+        })//底层还是借助XmlHttpRequsest对象发送请求
+    }
+</script>
+</body>
+</html>

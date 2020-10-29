@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <button onclick="doAjax()">$.ajax(...)</button>s
+    <button  onclick="doAjaxGet()">$.get(...)</button>
+    <button onclick="getJson()">$.getJson(...)</button>
+    <button onclick="doPost()">$.post(...)</button>
+    <button onclick="doLoad()">$("selecor").load(...)</button><br>
+    <span id="result"></span>
+</div>
+<script src="jquery.min.js"></script>
+<script>
+    function doLoad(){
+        let url="http://localhost:1314/loader";
+        let msg="msg=至此一家";
+        $("#result").load(url,msg,function (){
+            console.log("load complete")
+        });
+    }
+    function  doPost(){
+    //    1.url
+        let  url="http://localhost:1314/doPost"
+    //    2.params
+        let params="id=1&name=xiaomi&letter=x"
+    //    3.send  ajax  post request
+        $.post(url,params,function (result){
+            console.log(result);
+        })
+    }
+    function getJson(){
+        let url="http://localhost:1314/doGet";
+        let  params="";
+        $.getJSON(url,params,function (result){
+            console.log(result);
+        })
+
+    }
+    function doAjaxGet(){
+    let url="http://localhost:1314/doGet";
+      let  params="";
+      $.get(url,params,function (result){
+          console.log(result);
+      })
+
+    }
+    function doAjax(){
+        // debugger;
+    //1.请求url
+   let url="http://localhost:1314/doJqueryAjax";
+    //    2.请求参数
+        let params="msg=hello jquery ajax";
+    //    3.发送异步ajax请求
+        $.ajax({
+            url:url,
+            data:params,
+            dataType:"text",
+            async:true,
+            success:function (result){//状态码readyState=4&&status=200
+                $("#result").html(result);//innerHtmlText
+            },
+            error:function (){//状态码readyState=4&&status!=200
+                $("#result").html("request fail");
+            }
+
+        })
+    }
+</script>
+</body>
+</html>

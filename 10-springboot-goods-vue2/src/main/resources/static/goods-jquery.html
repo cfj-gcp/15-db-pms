@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div>
+    <h1>GOODS PAGE</h1>
+    <table border="2">
+        <thead>
+        <tr>
+        <th>id</th>
+        <th>name</th>
+        <th>remark</th>
+        <th>createdTime</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr><td colspan="4">Date is  loading</td></tr>
+        </tbody>
+    </table>
+</div>
+<script src="JS/jquery.min.js"></script>
+<SCRIPT>
+$(function (){
+    let url="doFindGoods";
+    $.getJSON(url,function (res){
+        console.log(res);
+        doHandleQueryResponseResult(res);
+    })
+})
+function doHandleQueryResponseResult(res){
+    //1.获取tbody对象并清空原有内容
+    let tBody=$("tbody");//等效于document.querySelector("tbody");
+    tBody.empty();//等效于innerHTML="";
+    //2.迭代result并将其内容追加到tbody中
+    res.forEach(function(item){
+        tBody.append(`<tr>
+                            <td>${item.id}</td>
+                            <td>${item.name}</td>
+                            <td>${item.remark}</td>
+                            <td>${item.createdTime}</td>
+                            <tr>`);
+    })
+}
+
+</SCRIPT>
+</body>
+</html>

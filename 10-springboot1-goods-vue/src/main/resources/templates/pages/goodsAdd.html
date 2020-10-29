@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en"  xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style type="text/css">
+        ul li {list-style-type: none;}
+    </style>
+</head>
+<body>
+<h1>goodsAdd pages</h1>
+<form th:action="@{/goods/insert}" method="post">
+<ul>
+    <li>name</li>
+    <li><input type="text" name="name"></li>
+    <li>remark</li>
+    <li><textarea rows="3" cols="50" name="remark"></textarea></li>
+    <li><input type="submit" value="save Goods"></li>
+
+</ul>
+</form>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.db.Dao.userMenuDao">
+    <select id="findMenuById"
+            resultMap="userMenu">
+        select p.id,p.name,p.url,c.id cid,c.name cname,c.url curl
+        from sys_menus p join sys_menus c
+        on c.parentId=p.id
+        <where>
+            <foreach collection="menuIds"
+                     open="("
+                     close=")"
+                     separator="or"
+                     item="menuId">
+                c.id=#{menuId}
+            </foreach>
+            and p.parentId is null
+        </where>
+    </select>
+    <resultMap type="com.cy.db.pojo.userMenu" id="userMenu">
+        <!-- 一级菜单映射 -->
+        <id  property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="url" column="url"/>
+        <!-- 二级菜单映射 -->
+        <collection property="childs" ofType="com.cy.db.pojo.userMenu">
+            <id  property="id" column="cid"/>
+            <result property="name" column="cname"/>
+            <result property="url" column="curl"/>
+        </collection>
+    </resultMap>
+</mapper>
+
+
+
+

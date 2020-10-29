@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en"   xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/datepicker/css/bootstrap-datetimepicker.css">
+    <script src="/jquery/jquery.min.js"></script>
+    <script src="/bootstrap/js/bootstrap.js"></script>
+    <script type="text/jsp" src="/datepicker/js/bootstrap-datetimepicker.js" charset="UTF-8"></script>
+    <!--<script type="text/jsp" src="/datepicker/js/bootstrap-datetimepicker.min.js" charset="UTF-8"></script>-->
+    <script type="text/jsp" src="/datepicker/js/locales/bootstrap-datetimepicker.zh-CN.js" charset="UTF-8"></script>
+</head>
+<body>
+<div class="container">
+    <h1>the activity page</h1>
+<!--    活动模块按钮-->
+    <button type="button" class="btn btn-primary btn-sm"
+            data-toggle="modal" data-target="#myModal">创建活动
+    </button>
+<!--    活动模块框架-->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog"
+         aria-labelledby="myModalLabel">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                    <h4 class="modal-title" id="myModalLabel">创建活动</h4>
+                </div>
+<!--                活动模块主题，需自己添加内容-->
+                <div class="modal-body">
+                    <form class="form-horizontal" th:action="@{/doSaveActivity}" method="post" id="saveFormId">
+                        <div class="form-group">
+                            <label for="titleId" class="col-sm-2 control-label">标题</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control"  name="title" id="titleId" placeholder="title">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryId" class="col-sm-2 control-label">类型</label>
+                            <div class="col-sm-10">
+                                <select id="categoryId" name="category" class="form-control">
+                                    <option value="教育培训">教育培训</option>
+                                    <option value="企业活动">企业活动</option>
+                                    <option value="交友活动">交友活动</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group" >
+                            <label for="startTimeId" class="col-sm-2 control-label">开始时间</label>
+                            <div class="col-sm-10" id="sanbox-container">
+                                <input type="text" class="form-control"
+                                       name="startTime" id="startTimeId" placeholder="start time">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="endTimeId" class="col-sm-2 control-label">结束时间</label>
+                            <div class="col-sm-10">
+                                <input type="text" class="form-control  form_datetime"
+                                       name="endTime" id="endTimeId" placeholder="end time">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="remarkId" class="col-sm-2 control-label">备注</label>
+                            <div class="col-sm-10">
+           <textarea type="text" class="form-control"  rows="5" name="remark" id="remarkId">
+            </textarea>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default"data-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" onclick="doSaveObject()">
+                        Save Changes</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <table class="table">
+        <thead>
+        <tr>
+            <th>title</th>
+            <th>Category</th>
+            <th>StartTime</th>
+            <th>EndTime</th>
+            <th>State</th>
+            <th>Operation</th>
+        </tr>
+        </thead>
+        <tbody id="tbodyId">
+        <tr><td colspan="6">数据正在加载中.......</td></tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    function doSaveObject(){
+        //1.定义url
+        let url="/doSaveActivity";
+        //2.定义请求参数
+        var params=
+            $("#saveFormId").serialize();//serialize()为jquery中直接获取表单数据方法
+        console.log("params",params);
+        //3.发送异步请求
+        $.ajax({
+            type:"post",
+            url:url,
+            data:params,
+            success:function(result){
+                alert(result);
+                //隐藏模态框
+                $('#myModal').modal('hide');
+                //重新执行查询，局部刷新
+                doFindActivitys();
+            }
+        });
+
+    };
+    function doFindActivitys(){
+        var url="/doFindActivity"
+        //启动ajax技术,基于GET请求方式获取服务端json数据
+        //getJSON函数默认会将服务端返回的json串转换为js对象
+        $.getJSON(url,function(result){
+            var tBody=$("#tbodyId");
+            tBody.empty();//清空原有body内容
+            for(var i=0;i<result.length;i++){//循环一次,迭代一行
+                //构建当前行对象
+                var tr=`<tr>
+                          <td>${result[i].title}</td>
+                          <td>${result[i].category}</td>
+                          <td>${result[i].startTime}</td>
+                          <td>${result[i].endTime}</td>
+                          <td>${result[i].state==1?'有效':'无效'}</td>
+                          <td><button type='button' class='btn btn-danger btn-sm'>delete</button></td>
+                         </tr>`
+                //将每一行的内容都追加tbody中
+                tBody.append(tr);
+            }
+        });
+    };
+    doFindActivitys();
+</script>
+<script>
+    $("#sanbox-container input").datetimepicker({
+        language: 'zh-CN', //语言
+        autoclose: true, //选择后自动关闭
+        clearBtn: true,//清除按钮
+        format: "yyyy-mm-dd"//日期格式
+    });
+</script>
+</body>
+</html>

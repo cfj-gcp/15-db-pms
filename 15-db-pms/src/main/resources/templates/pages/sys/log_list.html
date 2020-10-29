@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html  xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Good Thymes Virtual Grocery</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+<div class="row">
+	<div class="col-xs-12">
+		<div class="box">
+			<div class="box-header">
+				<h3 class="box-title">日志管理</h3>
+				<div class="box-tools">
+					<div class="input-group input-group-sm" style="width: 350px;">
+						<input type="text" name="table_search" id="searchNameId"
+							   class="form-control pull-right" placeholder="用户名">
+
+						<div class="input-group-btn">
+							<button type="button" class="btn btn-default btn-search">
+								<i class="fa fa-search"></i>
+							</button>
+							<button type="button" class="btn btn-default btn-delete">删除</button>
+						</div>
+					</div>
+				</div>
+			</div>
+			<!-- /.box-header -->
+			<div class="box-body table-responsive no-padding">
+				<table class="table table-hover">
+					<thead>
+					<tr>
+						<th><input type="checkbox" id="checkAll">全选</th>
+						<th>用户名</th>
+						<th>操作</th>
+						<th>请求方法</th>
+						<th>请求参数</th>
+						<th>IP</th>
+						<th>执行时长</th>
+					</tr>
+					</thead>
+					<tbody id="tbodyId">
+					<tr>
+						<td colspan="7">数据正在加载中...</td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+			<div  id="pageId" class="box-footer clearfix" dm="100" >
+
+			</div>
+			<!-- /.box-body -->
+		</div>
+		<!-- /.box -->
+	</div>
+</div>
+<script type="text/javascript">
+	$(()=>{
+		// $("#pageId").load("doPageUI",function(){
+		// 	doGetObjects();
+		// });
+		//上面语句的简化形式
+		$("#pageId").load("pageUI", doGetObjects);
+		$(".input-group-btn")
+				.on("click",".btn-search",doQueryObjects)
+				.on("click",".btn-delete",doDeleteObject)
+		//	全选事件注册和处理
+		$("#checkAll").change(doChangeTbodyCheckBoxState);
+		// $(".cBox").change(doChageTheadCheckBoxState);//有问题（页面加载完成cBox元素还不存在）
+		$("#tbodyId").on("change",".cBox",doChangeTheadCheckBoxState);
+	});
+	function doChangeTheadCheckBoxState(){
+		// alert("=======")
+		let flag=true;
+		$("#tbodyId input:checkbox").each(function (){
+			flag=flag&&$(this).prop("checked")
+		})
+	//	修改thead中chexkBox的值
+		$("#checkAll").prop("checked",flag);
+	}
+	function doChangeTbodyCheckBoxState(){
+		//获取全选checkBox对象状态
+		let flag=$(this).prop("checked");
+		//	修改tdbody中checkbox对象状态
+		$("#tbodyId input:checkbox").prop("checked",flag);
+
+
+	}
+	function doGetCheckedIds(){
+		let idAyyays=[];
+		$("#tbodyId input:checkbox:checked").each(function (){
+			idAyyays.push($(this).val());//this值input对象val值它的值
+		})
+		return idAyyays;
+	}
+	//删除事件处理函数
+	function doDeleteObject(){
+		//	1.获取选中的日志记录id并校验
+		let idArrays=doGetCheckedIds();
+		//	给出删除提示
+		if(!confirm("你确定删除么")) return;
+		//	发送异步请求
+		const  url=`deleteObject/${idArrays.toString()}`;
+		// let  params={ids:idArrays.toString()};
+		$.post(url,function (result){
+			if(result.state==1){
+				alert(result.message);
+				// doGetObjects();//重新查询
+				doReFreshAfterDeleteOk();
+			}else{
+				alert(result.message);
+			}
+		})
+	}
+function doReFreshAfterDeleteOk(){
+//		获取当前野马之，总页数，全选状态
+	let pageCurrent=$("#pageId").data("pageCurrent");
+	let pageCount=$("#pageId").data("pageCount");
+	let state=$("#checkAll").prop("checked");
+//	基于条件修改当前页码值
+	if(state&&pageCurrent>1&&pageCurrent==pageCount){
+         pageCurrent--;
+         $("#pageId").data("pageCurrent",pageCurrent);
+	}
+//	重新执行查询
+	doGetObjects();
+}
+	function doQueryObjects(){
+		//为什么要在此位置初始化pageCurrent的值为1?
+		//数据查询时页码的初始位置也应该是第一页
+		$("#pageId").data("pageCurrent",1);
+		//为什么要调用doGetObjects函数？
+		//重用js代码，简化jS代码编写。
+		doGetObjects();
+	};
+	//向服务端发送异步请求查询用户行为日志信息,并将信息更新到页面上
+	function doGetObjects(){
+		//1.request url
+		const url="findPageObject";
+		//2.request params
+		//let params="pageCurrent=1";
+		let pageCurrent=$("#pageId").data("pageCurrent")
+		if(!pageCurrent)pageCurrent=1//非零即为真
+		var params={"pageCurrent":pageCurrent};//pageCurrent=2
+		var username=$("#searchNameId").val();
+		if(username) params.username=username;
+		//3.send ajax get request
+		$.getJSON(url,params,function (result){
+			doHandleQueryResponseResult(result);
+			// doHandleResponseResult(result);
+		});
+	}
+	//处理日志查询结果
+	function doHandleQueryResponseResult(result){//server->JsonResult-->json string-->client-->js object
+		if(result.state==1){//state==1表示服务端响应的是正常数据
+			//1)tbody位置呈现当前页的日志记录信息(result.data.records)
+			doSetTableBodyRows(result.data.records);
+			//2)pageId位置呈现日志分析信息(总记录数,总页数,当前页码值)
+			doSetPagination(result.data);
+		}else{//state!=1表示服务端响应的是异常信息
+			//1)方法1:alert 错误信息
+			// alert(result.message);
+			//2)方法2:tbody位置插入错误信息
+			// let tBody=$("#tbodyId");
+			// tBody.empty();
+			// tBody.append(result.message);
+			doSetTableBodyError(result.message);
+
+		}
+	}
+	function  doSetTableBodyError(msg){
+		$("#tbodyId").html(`<tr><td colspan="7">${msg}</td></tr>`);
+		let page={pageCount:0,pageCurrent:1,rowCount:0};
+		doSetPagination(page);
+	}
+	//在tbody位置呈现当前页记录
+	function doSetTableBodyRows(records){//records==[{},{},{}]
+		//1.获取tbody对象,并清空原有内容
+		let tBody=$("#tbodyId");
+		tBody.empty();
+		//2.迭代日志记录,并将记录呈现在tbody位置
+		records.forEach(item=>{
+			tBody.append(doCreateRow(item));
+		})
+	}
+	//创建行对象,呈现当前行记录
+	function doCreateRow(item){
+		return `<tr>
+                 <td><input type="checkbox"  class="cBox" value="${item.id}"></td>
+                 <td>${item.username}</td>
+                 <td>${item.operation}</td>
+                 <td>${item.method}</td>
+                 <td>${item.params}</td>
+                 <td>${item.ip}</td>
+                 <td>${item.time}</td>
+               </tr>`;
+	}
+	function doQueryObjects(){
+		//为什么要在此位置初始化pageCurrent的值为1?
+		//数据查询时页码的初始位置也应该是第一页
+		$("#pageId").data("pageCurrent",1);
+		//为什么要调用doGetObjects函数？
+		//重用js代码，简化jS代码编写。
+		doGetObjects();
+	}
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+

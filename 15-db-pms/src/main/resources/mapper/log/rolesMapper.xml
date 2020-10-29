@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.db.Dao.rolesDao">
+    <sql id="queryWhere">
+        <where>
+            <if test="name!=null and name!='' ">
+                name like concat("%",#{name},"%")
+            </if>
+        </where>
+    </sql>
+<!--    更新数据-->
+    <update id="updateObject"  parameterType="com.cy.db.pojo.role">
+     update sys_roles
+         set
+           name=#{name},
+           note=#{note},
+           modifiedUser=#{modifiedUser},
+           modifiedTime=now()
+        where id=#{id}
+    </update>
+<!--    第一种关联查询-->
+    <resultMap id="roleMenu" type="com.cy.db.pojo.roleMenu">
+        <id property="id" column="id"></id>
+              <result property="name" column="name"></result>
+              <result property="note" column="note"></result>
+        <collection property="menuIds" ofType="integer">
+             <result column="menu_id"></result>
+        </collection>
+    </resultMap>
+    <select id="findObjectById" resultMap="roleMenu">
+      select  r.id,r.name ,r.note,srm.menu_id
+      from sys_roles r left join sys_role_menus srm
+      on  r.id=srm.role_id
+      where r.id=#{id}
+    </select>
+<!--    第二种嵌套查询-->
+<!--    查询角色通过id-->
+    <!--    定义resultMap映射-->
+<!--    <resultMap type="com.cy.db.pojo.roleMenu" id="roleMenu">-->
+<!--        &lt;!&ndash; 假如基于id做再次执行查询，又希望将id值存储到值对象，-->
+<!--                                  可以对id进行专门映射 &ndash;&gt;-->
+<!--        <id property="id" column="id"></id>-->
+<!--        <result property="name" column="name"></result>-->
+<!--        <result property="note" column="note"></result>-->
+<!--        &lt;!&ndash; collection一般应用于1对多查询 &ndash;&gt;-->
+<!--        <collection property="menuIds"-->
+<!--                    ofType="integer"-->
+<!--                    select="com.cy.db.Dao.RoleMenuDao.findByRoleId"-->
+<!--                    column="id">-->
+<!--        </collection>-->
+<!--    </resultMap>-->
+<!--    <select id="findObjectById"-->
+<!--    resultMap="roleMenu">-->
+<!--        select id,name,note-->
+<!--        from sys_roles-->
+<!--        where id=#{id}-->
+<!--    </select>-->
+
+<!--    第一种-->
+<!--    <select id="findObjectById"-->
+<!--            resultMap="com.cy.db.pojo.roleMenu">-->
+<!--        select id,name,note-->
+<!--        from sys_roles-->
+<!--        where id=#{id}-->
+<!--    </select>-->
+
+<!--    插入角色-->
+<!--
+ useGeneratedKeys="true" 表示要使用insert操作自增主键值
+  keyProperty="id"   表示insert操作后的主键值更新到参数对象指定的属性上（例如id）
+-->
+    <insert id="insertObject" parameterType="com.cy.db.pojo.role"
+            useGeneratedKeys="true"  keyProperty="id">
+    insert  into sys_roles
+    (name,note,createdTime,modifiedTime,createdUser,modifiedUser)
+    values
+    (#{name},#{note},#{createdTime},#{modifiedTime},#{createdUser},#{modifiedUser})
+</insert>
+<!--    根据字段查询角色-->
+<!--    <select id="getRoleCount" resultType="int">-还是需要的换一种方法->
+<!        select count(*)-->
+<!--        from sys_roles-->
+<!--        <include refid="queryWhere"/>-->
+<!--    </select>-->
+<!--    角色查询-->
+    <select id="findObject" resultType="com.cy.db.pojo.role">
+        select *
+        from sys_roles
+        <include refid="queryWhere"></include>
+        order by createdTime desc
+    </select>
+    </mapper>

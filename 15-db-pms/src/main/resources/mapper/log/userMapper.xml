@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.cy.db.Dao.userDao">
+    <sql id="queryWhereId">
+        from sys_users
+        <where>
+            <if test="username!=null and username!=''">
+                username like concat("%",#{username},"%")
+            </if>
+        </where>
+    </sql>
+    <!--    根据用户Id查询角色-->
+    <select id="findObjectById"
+            parameterType="int"
+            resultMap="userDept">
+select  id,username,email,mobile,deptId
+           from sys_users
+           where id=#{id}
+</select>
+<!--    修改用户密码-->
+    <update id="updatePassword">
+         update sys_users
+         set password=#{password},
+             salt=#{salt},
+             modifiedTime=now()
+         where id=#{id}
+</update>
+    <!--    修改user信息-->
+    <update id="updateObject" parameterType="com.cy.db.pojo.user">
+update sys_users
+set  username=#{username},
+            mobile=#{mobile},
+            email=#{email},
+            deptId=#{deptId},
+            modifiedTime=now(),
+            modifiedUser=#{modifiedUser}
+            where id=#{id}
+    </update>
+    <!--    添加用户信息-->
+    <insert id="insertObject" parameterType="com.cy.db.pojo.user"
+            useGeneratedKeys="true"
+            keyProperty="id">
+    insert into sys_users
+    (username,password,deptId,email,mobile,salt,valid,
+    createdTime,modifiedTime,createdUser,modifiedUser)
+    values
+    (#{username},#{password},#{deptId},#{email},#{mobile},#{salt},#{valid},
+    now(),now(),#{createdUser},#{modifiedUser})
+    </insert>
+    <!--    修改用户状态信息-->
+    <update id="validById">
+        update sys_users
+        set valid=#{valid},
+             modifiedUser=#{modifiedUser},
+             modifiedTime=now()
+             where id=#{id}
+    </update>
+    <!--    查询记录总数-->
+    <select id="getRowCount" resultType="int">
+        select count(*)
+        <include refid="queryWhereId"/>
+    </select>
+    <!--    分页查询user-->
+    <select id="findPageObjects"
+            resultMap="userDept">
+        select *
+        <include refid="queryWhereId"/>
+        order by createdTime desc
+        limit #{startIndex},#{pageSize}
+    </select>
+    <resultMap type="com.cy.db.pojo.userDept"
+               id="userDept">
+        <!-- 一般应用于many2one或one2one做关联查询
+              在当前应用是基于deptId查询部门信息并将其
+             存储到SysUserDeptVo对象的sysDept属性中。
+         -->
+        <association property="sysDept"
+                     column="deptId"
+                     select="com.cy.db.Dao.SysDeptDao.findById">
+        </association>
+    </resultMap>
+</mapper>
+
+
+
+
