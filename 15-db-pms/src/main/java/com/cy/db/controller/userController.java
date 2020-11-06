@@ -6,6 +6,7 @@ import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.UsernamePasswordToken;
 import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -25,7 +26,8 @@ public JsonResult doUpdatePassword(
     return new JsonResult("update ok");
 }
 //授权登录
-    @RequestMapping("doLogin")
+    @RequestMapping("/vue-admin-template/user/login")
+    @CrossOrigin
     public JsonResult doLogin(String username,String password,boolean isRememberMe){
         System.out.println("==login==");
         //1.获取Subject对象

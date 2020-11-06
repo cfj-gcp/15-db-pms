@@ -14,7 +14,7 @@ public class TimeAccessInterceptor  implements HandlerInterceptor {
         LocalTime time = LocalTime.now();//jdk8中的api
         int hour = time.getHour();
         System.out.println("hour="+hour);
-        if(hour<7||hour>18){
+        if(hour<7||hour>24){
           throw new serviceException("不在登陆时间范围内");
         }
         return true;//true表示放行，false表示请求到此结束
